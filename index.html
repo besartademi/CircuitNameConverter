@@ -21,18 +21,28 @@
         textarea, input {
             padding: 10px;
             font-size: 1em;
+            border-radius: 8px; /* Rounded corners */
+            border: 1px solid #ccc;
         }
         button {
-            background-color: #4CAF50;
+            background-color: #0056b3; /* Lighter blue color for main buttons */
             color: white;
             padding: 10px;
             font-size: 1.2em;
             border: none;
             cursor: pointer;
-            margin-right: 10px;
+            border-radius: 8px; /* Rounded corners */
+            transition: background-color 0.3s ease; /* Smooth transition */
         }
         button:hover {
-            background-color: #45a049;
+            background-color: #004494; /* Darker shade on hover */
+        }
+        /* Style for the copy buttons */
+        button.copyButton {
+            background-color: #388E3C; /* Darker green for contrast */
+        }
+        button.copyButton:hover {
+            background-color: #2C6D2B; /* Darker shade on hover */
         }
         .output {
             margin-top: 20px;
@@ -43,11 +53,17 @@
             display: none; /* Initially hidden */
         }
         .template {
-            margin-bottom: 60px; /* Increased space between two templates */
+            margin-bottom: 60px; /* Adds space between two templates */
         }
         hr {
             border: 1px solid #ddd;
-            margin: 60px 0; /* Increase spacing between the two templates */
+        }
+        .copied-message {
+            color: green;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 5px;
+            text-align: center; /* Center the message */
         }
     </style>
 </head>
@@ -64,10 +80,11 @@
         <label for="datePicker">Select Date (defaults to today, MM/DD/YYYY format):</label>
         <input type="date" id="datePicker" placeholder="MM/DD/YYYY" pattern="\d{4}-\d{2}-\d{2}">
         
-        <button onclick="convertCircuitsWithDate()">Convert with Date (RFC2544)</button>
+        <button id="convertWithDate" onclick="convertCircuitsWithDate()">Convert with Date (RFC2544)</button>
         
         <div class="output" id="outputWithDate"></div>
-        <button id="copyButton1" onclick="copyToClipboard('outputWithDate')">Copy to Clipboard</button>
+        <button id="copyButton1" class="copyButton" onclick="copyToClipboard('outputWithDate', 'copyMessage1')">Copy to Clipboard</button>
+        <div class="copied-message" id="copyMessage1">Copied!</div>
     </div>
     
     <hr>
@@ -77,10 +94,11 @@
         <label for="circuitsWithoutDate">Enter circuit names (each on a new line) for simple conversion:</label>
         <textarea id="circuitsWithoutDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
         
-        <button onclick="convertCircuitsWithoutDate()">Convert without Date</button>
+        <button id="convertWithoutDate" onclick="convertCircuitsWithoutDate()">Convert without Date</button>
         
         <div class="output" id="outputWithoutDate"></div>
-        <button id="copyButton2" onclick="copyToClipboard('outputWithoutDate')">Copy to Clipboard</button>
+        <button id="copyButton2" class="copyButton" onclick="copyToClipboard('outputWithoutDate', 'copyMessage2')">Copy to Clipboard</button>
+        <div class="copied-message" id="copyMessage2">Copied!</div>
     </div>
 </div>
 
@@ -136,7 +154,7 @@
         document.getElementById('copyButton2').style.display = 'block';
     }
 
-    function copyToClipboard(outputId) {
+    function copyToClipboard(outputId, messageId) {
         const outputText = document.getElementById(outputId).textContent;
         
         // Create a temporary textarea element to hold the text for copying
@@ -146,8 +164,15 @@
         tempTextarea.select();
         document.execCommand('copy');
         document.body.removeChild(tempTextarea);
+
+        // Show the copied message
+        const messageElement = document.getElementById(messageId);
+        messageElement.style.display = 'block';
         
-        alert('Copied to clipboard!');
+        // Hide the message after 3 seconds
+        setTimeout(() => {
+            messageElement.style.display = 'none';
+        }, 3000);
     }
 </script>
 
