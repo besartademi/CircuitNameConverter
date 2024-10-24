@@ -29,6 +29,7 @@
             font-size: 1.2em;
             border: none;
             cursor: pointer;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #45a049;
@@ -37,34 +38,48 @@
             margin-top: 20px;
             white-space: pre-line;
         }
-        #copyButton {
+        #copyButton, #copySimpleButton {
             margin-top: 10px;
             display: none; /* Initially hidden */
+        }
+        .template {
+            margin-bottom: 50px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Circuit Name Converter</h2>
-    <label for="circuits">Enter circuit names (each on a new line):</label>
-    <textarea id="circuits" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+<div class="container template">
+    <h2>Template 1: Convert with Date (RFC2544)</h2>
+    <label for="circuitsWithDate">Enter circuit names (each on a new line):</label>
+    <textarea id="circuitsWithDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
     
-    <button onclick="convertCircuits()">Convert</button>
+    <button onclick="convertCircuits()">Convert with Date (RFC2544)</button>
     
-    <div class="output" id="output"></div>
-    <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+    <div class="output" id="outputWithDate"></div>
+    <button id="copyButton" onclick="copyToClipboard('outputWithDate')">Copy to Clipboard</button>
+</div>
+
+<div class="container template">
+    <h2>Template 2: Simple Convert (No Date)</h2>
+    <label for="circuitsSimple">Enter circuit names (each on a new line):</label>
+    <textarea id="circuitsSimple" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+    
+    <button onclick="convertSimple()">Simple Convert (No Date)</button>
+    
+    <div class="output" id="outputSimple"></div>
+    <button id="copySimpleButton" onclick="copyToClipboard('outputSimple')">Copy to Clipboard</button>
 </div>
 
 <script>
     function convertCircuits() {
-        const input = document.getElementById('circuits').value.trim();
+        const input = document.getElementById('circuitsWithDate').value.trim();
         const today = new Date();
         const dateString = `RFC2544.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}.${today.getFullYear()}`;
         
         const lines = input.split('\n');
         const result = lines.map(line => {
-            // Remove spaces, convert / to ., and remove trailing /
+            // Remove spaces, convert / to ., and remove trailing / if present
             let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
             // Remove consecutive dots
             converted = converted.replace(/\.{2,}/g, '.');
@@ -72,14 +87,32 @@
             return `${converted}.${dateString}`;
         }).join('\n');
         
-        document.getElementById('output').textContent = result;
+        document.getElementById('outputWithDate').textContent = result;
         
         // Show the copy button after conversion
         document.getElementById('copyButton').style.display = 'block';
     }
 
-    function copyToClipboard() {
-        const outputText = document.getElementById('output').textContent;
+    function convertSimple() {
+        const input = document.getElementById('circuitsSimple').value.trim();
+        
+        const lines = input.split('\n');
+        const result = lines.map(line => {
+            // Remove spaces, convert / to ., and remove trailing / if present
+            let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
+            // Remove consecutive dots
+            converted = converted.replace(/\.{2,}/g, '.');
+            return converted;
+        }).join('\n');
+        
+        document.getElementById('outputSimple').textContent = result;
+        
+        // Show the copy button after conversion
+        document.getElementById('copySimpleButton').style.display = 'block';
+    }
+
+    function copyToClipboard(outputId) {
+        const outputText = document.getElementById(outputId).textContent;
         
         // Create a temporary textarea element to hold the text for copying
         const tempTextarea = document.createElement('textarea');
