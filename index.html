@@ -38,9 +38,16 @@
             margin-top: 20px;
             white-space: pre-line;
         }
-        #copyButton {
+        #copyButton1, #copyButton2 {
             margin-top: 10px;
             display: none; /* Initially hidden */
+        }
+        .template {
+            margin-bottom: 60px; /* Increased space between two templates */
+        }
+        hr {
+            border: 1px solid #ddd;
+            margin: 60px 0; /* Increase spacing between the two templates */
         }
     </style>
 </head>
@@ -49,16 +56,32 @@
 <div class="container">
     <h2>Circuit Name Converter</h2>
     
-    <label for="circuitsWithDate">Enter circuit names (each on a new line):</label>
-    <textarea id="circuitsWithDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+    <!-- Template for Circuit Name Conversion with Date -->
+    <div class="template">
+        <label for="circuitsWithDate">Enter circuit names (each on a new line) for conversion with date:</label>
+        <textarea id="circuitsWithDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+        
+        <label for="datePicker">Select Date (defaults to today, MM/DD/YYYY format):</label>
+        <input type="date" id="datePicker" placeholder="MM/DD/YYYY" pattern="\d{4}-\d{2}-\d{2}">
+        
+        <button onclick="convertCircuitsWithDate()">Convert with Date (RFC2544)</button>
+        
+        <div class="output" id="outputWithDate"></div>
+        <button id="copyButton1" onclick="copyToClipboard('outputWithDate')">Copy to Clipboard</button>
+    </div>
     
-    <label for="datePicker">Select Date (defaults to today):</label>
-    <input type="date" id="datePicker">
-    
-    <button onclick="convertCircuits()">Convert with Date (RFC2544)</button>
-    
-    <div class="output" id="outputWithDate"></div>
-    <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+    <hr>
+
+    <!-- Template for Circuit Name Conversion without Date -->
+    <div class="template">
+        <label for="circuitsWithoutDate">Enter circuit names (each on a new line) for simple conversion:</label>
+        <textarea id="circuitsWithoutDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+        
+        <button onclick="convertCircuitsWithoutDate()">Convert without Date</button>
+        
+        <div class="output" id="outputWithoutDate"></div>
+        <button id="copyButton2" onclick="copyToClipboard('outputWithoutDate')">Copy to Clipboard</button>
+    </div>
 </div>
 
 <script>
@@ -69,12 +92,14 @@
         document.getElementById('datePicker').value = formattedDate;
     });
 
-    function convertCircuits() {
+    function convertCircuitsWithDate() {
         const input = document.getElementById('circuitsWithDate').value.trim();
         
         // Get selected date, default to today if none is selected
         const selectedDate = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
         const [year, month, day] = selectedDate.split('-');
+        
+        // Date format for US: MM/DD/YYYY
         const dateString = `RFC2544.${month}.${day}.${year}`;
         
         const lines = input.split('\n');
@@ -90,11 +115,29 @@
         document.getElementById('outputWithDate').textContent = result;
         
         // Show the copy button after conversion
-        document.getElementById('copyButton').style.display = 'block';
+        document.getElementById('copyButton1').style.display = 'block';
     }
 
-    function copyToClipboard() {
-        const outputText = document.getElementById('outputWithDate').textContent;
+    function convertCircuitsWithoutDate() {
+        const input = document.getElementById('circuitsWithoutDate').value.trim();
+        
+        const lines = input.split('\n');
+        const result = lines.map(line => {
+            // Remove spaces, convert / to ., and remove trailing / if present
+            let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
+            // Remove consecutive dots
+            converted = converted.replace(/\.{2,}/g, '.');
+            return converted;
+        }).join('\n');
+        
+        document.getElementById('outputWithoutDate').textContent = result;
+        
+        // Show the copy button after conversion
+        document.getElementById('copyButton2').style.display = 'block';
+    }
+
+    function copyToClipboard(outputId) {
+        const outputText = document.getElementById(outputId).textContent;
         
         // Create a temporary textarea element to hold the text for copying
         const tempTextarea = document.createElement('textarea');
