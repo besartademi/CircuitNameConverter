@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Name Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        label, textarea, input, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        textarea, input {
+            padding: 10px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            font-size: 1.2em;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .output {
+            margin-top: 20px;
+            white-space: pre-line;
+        }
+        #copyButton {
+            margin-top: 10px;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Circuit Name Converter</h2>
+    <label for="circuits">Enter circuit names (each on a new line):</label>
+    <textarea id="circuits" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
+    
+    <button onclick="convertCircuits()">Convert</button>
+    
+    <div class="output" id="output"></div>
+    <button id="copyButton" onclick="copyToClipboard()">Copy to Clipboard</button>
+</div>
+
+<script>
+    function convertCircuits() {
+        const input = document.getElementById('circuits').value.trim();
+        const today = new Date();
+        const dateString = `RFC2544.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}.${today.getFullYear()}`;
+        
+        const lines = input.split('\n');
+        const result = lines.map(line => {
+            // Remove spaces, convert / to ., and remove trailing /
+            let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
+            // Remove consecutive dots
+            converted = converted.replace(/\.{2,}/g, '.');
+            // Append the RFC2544 date string
+            return `${converted}.${dateString}`;
+        }).join('\n');
+        
+        document.getElementById('output').textContent = result;
+        
+        // Show the copy button after conversion
+        document.getElementById('copyButton').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+        const outputText = document.getElementById('output').textContent;
+        
+        // Create a temporary textarea element to hold the text for copying
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = outputText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+        
+        alert('Copied to clipboard!');
+    }
+</script>
+
+</body>
+</html>
