@@ -15,7 +15,8 @@
         }
         label, textarea, input, button {
             display: block;
-            width: 100%;
+            width: 100%; /* Keep this for responsive design */
+            max-width: 100%; /* Ensure full width in container */
             margin-bottom: 10px;
         }
         textarea, input {
@@ -23,6 +24,7 @@
             font-size: 1em;
             border-radius: 8px; /* Rounded corners */
             border: 1px solid #ccc;
+            box-sizing: border-box; /* Ensures padding doesn't affect total width */
         }
         button {
             background-color: #0056b3; /* Lighter blue color for main buttons */
