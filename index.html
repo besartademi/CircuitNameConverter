@@ -16,36 +16,35 @@
         }
         label, textarea, input, button {
             display: block;
-            width: 100%; /* Keep this for responsive design */
-            max-width: 100%; /* Ensure full width in container */
+            width: 100%;
+            max-width: 100%;
             margin-bottom: 10px;
         }
         textarea, input {
             padding: 10px;
             font-size: 1em;
-            border-radius: 8px; /* Rounded corners */
+            border-radius: 8px;
             border: 1px solid #ccc;
-            box-sizing: border-box; /* Ensures padding doesn't affect total width */
+            box-sizing: border-box;
         }
         button {
-            background-color: #0056b3; /* Lighter blue color for main buttons */
+            background-color: #0056b3;
             color: white;
             padding: 10px;
             font-size: 1.2em;
             border: none;
             cursor: pointer;
-            border-radius: 8px; /* Rounded corners */
-            transition: background-color 0.3s ease; /* Smooth transition */
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #004494; /* Darker shade on hover */
+            background-color: #004494;
         }
-        /* Style for the copy buttons */
         button.copyButton {
-            background-color: #388E3C; /* Darker green for contrast */
+            background-color: #388E3C;
         }
         button.copyButton:hover {
-            background-color: #2C6D2B; /* Darker shade on hover */
+            background-color: #2C6D2B;
         }
         .output {
             margin-top: 20px;
@@ -53,10 +52,10 @@
         }
         #copyButton1, #copyButton2 {
             margin-top: 10px;
-            display: none; /* Initially hidden */
+            display: none;
         }
         .template {
-            margin-bottom: 60px; /* Adds space between two templates */
+            margin-bottom: 60px;
         }
         hr {
             border: 1px solid #ddd;
@@ -66,7 +65,7 @@
             font-size: 0.9em;
             display: none;
             margin-top: 5px;
-            text-align: center; /* Center the message */
+            text-align: center;
         }
     </style>
 </head>
@@ -75,7 +74,6 @@
 <div class="container">
     <h2>Circuit Name Converter</h2>
     
-    <!-- Template for Circuit Name Conversion with Date -->
     <div class="template">
         <label for="circuitsWithDate">Enter circuit names (each on a new line) for conversion with date:</label>
         <textarea id="circuitsWithDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
@@ -92,7 +90,6 @@
     
     <hr>
 
-    <!-- Template for Circuit Name Conversion without Date -->
     <div class="template">
         <label for="circuitsWithoutDate">Enter circuit names (each on a new line) for simple conversion:</label>
         <textarea id="circuitsWithoutDate" rows="6" placeholder="TX/VLXP/601760/001/WINW/&#10;TX/VLXP/601760/002/WINW/"></textarea>
@@ -106,73 +103,51 @@
 </div>
 
 <script>
-    // Set the default date as today
     document.addEventListener('DOMContentLoaded', (event) => {
         const today = new Date();
-        const formattedDate = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
+        const formattedDate = today.toISOString().split('T')[0];
         document.getElementById('datePicker').value = formattedDate;
     });
 
     function convertCircuitsWithDate() {
         const input = document.getElementById('circuitsWithDate').value.trim();
-        
-        // Get selected date, default to today if none is selected
         const selectedDate = document.getElementById('datePicker').value || new Date().toISOString().split('T')[0];
         const [year, month, day] = selectedDate.split('-');
-        
-        // Date format for US: MM/DD/YYYY
         const dateString = `RFC2544.${month}.${day}.${year}`;
-        
         const lines = input.split('\n');
         const result = lines.map(line => {
-            // Remove spaces, convert / to ., and remove trailing / if present
+            line = line.replace(/\/[^/]*$/, '');
             let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
-            // Remove consecutive dots
             converted = converted.replace(/\.{2,}/g, '.');
-            // Append the RFC2544 date string
             return `${converted}.${dateString}`;
         }).join('\n');
-        
         document.getElementById('outputWithDate').textContent = result;
-        
-        // Show the copy button after conversion
         document.getElementById('copyButton1').style.display = 'block';
     }
 
     function convertCircuitsWithoutDate() {
         const input = document.getElementById('circuitsWithoutDate').value.trim();
-        
         const lines = input.split('\n');
         const result = lines.map(line => {
-            // Remove spaces, convert / to ., and remove trailing / if present
+            line = line.replace(/\/[^/]*$/, '');
             let converted = line.replace(/\s+/g, '').replace(/\//g, '.').replace(/\.$/, '');
-            // Remove consecutive dots
             converted = converted.replace(/\.{2,}/g, '.');
             return converted;
         }).join('\n');
-        
         document.getElementById('outputWithoutDate').textContent = result;
-        
-        // Show the copy button after conversion
         document.getElementById('copyButton2').style.display = 'block';
     }
 
     function copyToClipboard(outputId, messageId) {
         const outputText = document.getElementById(outputId).textContent;
-        
-        // Create a temporary textarea element to hold the text for copying
         const tempTextarea = document.createElement('textarea');
         tempTextarea.value = outputText;
         document.body.appendChild(tempTextarea);
         tempTextarea.select();
         document.execCommand('copy');
         document.body.removeChild(tempTextarea);
-
-        // Show the copied message
         const messageElement = document.getElementById(messageId);
         messageElement.style.display = 'block';
-        
-        // Hide the message after 3 seconds
         setTimeout(() => {
             messageElement.style.display = 'none';
         }, 3000);
